@@ -8,23 +8,21 @@ video_extensions = []
 image_extension = ["png", "jpeg", "jpg"]
 
 
-def load_image(loc):
-    return Image(loc)
+def load_image(loc, x, y):
+    return Image(loc, x, y)
 
 
-def load_file(path, file):
-    print(file)
-    ext = file.split(".")[1]
-    loc = path + "\\" + file
+def load_file(path, x, y):
+    ext = path.split(".")[1]
     out = ""
     if ext in sound_extensions:
-        out = load_sound(loc)
+        out = load_sound(path)
     elif ext in video_extensions:
-        out = load_video(loc)
+        out = load_video(path)
     elif ext in image_extension:
-        out = load_image(loc)
+        out = load_image(path, x, y)
     elif ext != "ini":
-        raise UnsupportedExtensionError(file, loc, ext)
+        raise UnsupportedExtensionError(path, path, ext)
     return out
 
 

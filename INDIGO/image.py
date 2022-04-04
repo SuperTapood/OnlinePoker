@@ -4,12 +4,14 @@ import pygame
 # the purpose of this class is to ease the image manipulation in pygame
 
 class Image:
-    def __init__(self, path):
+    def __init__(self, path, x, y):
         """
         r path - the path to the image
         """
         # load the image
         self.image = self.load_image(path)
+        self.x = x
+        self.y = y
         return
 
     def load_image(self, path):
@@ -73,3 +75,7 @@ class Image:
 
     def get_rect(self):
         return self.get_img().get_rect()
+
+    def blit(self, screen):
+        screen.blit(self.get_img(), self.x, self.y)
+        return
