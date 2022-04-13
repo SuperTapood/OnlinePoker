@@ -13,7 +13,12 @@ conv_type = ["clubs", "diamonds", "hearts", "spades"]
 
 
 class Card:
-    def __init__(self, value, cls):
+    def __init__(self, value: int, cls: int):
+        """
+        create a new card instance
+        :param value: the value of the card (ranges from ace to king)
+        :param cls: the class of the card (club, diamond, heart, spade)
+        """
         self.real_img = self.get_image(value, cls)
         self.img = pygame.image.load(f"Cards\\back.png")
         self.img = pygame.transform.scale(self.img, (self.real_img.get_width(), self.real_img.get_height()))
@@ -27,7 +32,13 @@ class Card:
         return
 
     @staticmethod
-    def get_image(value, cls):
+    def get_image(value: int, cls: int):
+        """
+        get an image file from input parameters
+        :param value: the value of the card (ranges from ace to king)
+        :param cls: the class of the card (club, diamond, heart, spade)
+        :return: the resulting image
+        """
         if value in conv_value.keys():
             value = conv_value.get(value)
         cls = conv_type[cls]
@@ -35,10 +46,21 @@ class Card:
         return pygame.transform.scale(img, (img.get_width() / 3.5, img.get_height() / 3.5))
 
     def blit(self):
+        """
+        render the image on the screen
+        """
         Screen.scr.blit(self.img, self.rect)
         return
 
     def set_index(self, card_index, hand_index):
+        """
+        manipulate the card to show it nicely
+        do not even attempt to understand what is happening here
+
+        :param card_index: the index of this card
+        :param hand_index: the index of the hand this card is in
+        :return this instance because I feel it adds personality to the function
+        """
         self.img = self.real_img
         if hand_index == 0:
             self.rect[0] = 300 + card_index * 50

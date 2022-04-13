@@ -1,9 +1,6 @@
-import os
 import sys
-import threading
 import pygame
 
-from Card import Card
 from Deck import Deck
 from Engine import *
 from Hand import Hand
@@ -13,6 +10,9 @@ class Chess:
     scr = None
 
     def __init__(self):
+        """
+        create a new instance of the game
+        """
         self.scr = Screen(800, 800)
         self.deck = Deck()
         self.index = 0
@@ -21,6 +21,10 @@ class Chess:
 
     @staticmethod
     def handle_events():
+        """
+        handle pygame events
+        :return: false if the game is being closed, else true
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
