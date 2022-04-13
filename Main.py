@@ -1,50 +1,55 @@
 import threading
 import pygame
 
-from Board import Board
+from Card import Card
 from Engine import *
 
 
-class Poker:
+class Chess:
     scr = None
 
     def __init__(self):
         self.scr = Screen(800, 800)
-        self.board = Board()
+        self.pack = []
+        for i in range(1, 14):
+            for j in range(4):
+                self.pack.append(Card(i, j))
+        self.index = 0
         return
 
-    def handle_events(self):
+    @staticmethod
+    def handle_events():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+        return
 
     def main_menu(self):
-        title = Text("O n l i n e  C h e s s", 50, 50)
-        start = TextButton("create match", 100, 100, 25, resp=lambda: print("hello"))
-        while True:
-            title.blit()
-            start.blit()
-            pygame.display.update()
-            self.handle_events()
-        pass
+        return
+
+    def create_match(self):
+        return
+
+    def join_match(self):
+        return
 
     # render thread
     def render(self):
-        self.handle_events()
-        self.board.blit()
-        pygame.display.flip()
-        pygame.display.update()
-        return
+        while True:
+            Screen.scr.fill(black)
+            self.handle_events()
 
     pass
 
 
 if __name__ == "__main__":
     pygame.init()
-    game = Poker()
-    game.main_menu()
+    game = Chess()
+    # todo: do this after finishing the game dummy
+    # game.main_menu()
     # create render and network threads
     render_thread = threading.Thread(target=game.render)
     render_thread.start()
     while True:
-        Screen.scr.blit(pygame.transform.flip(Screen.scr, False, True), (0, 0))
+        pygame.display.update()
+        game.handle_events()
