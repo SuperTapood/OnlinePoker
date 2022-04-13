@@ -2,7 +2,9 @@ import threading
 import pygame
 
 from Card import Card
+from Deck import Deck
 from Engine import *
+from Hand import Hand
 
 
 class Chess:
@@ -10,10 +12,7 @@ class Chess:
 
     def __init__(self):
         self.scr = Screen(800, 800)
-        self.pack = []
-        for i in range(1, 14):
-            for j in range(4):
-                self.pack.append(Card(i, j))
+        self.deck = Deck()
         self.index = 0
         return
 
@@ -35,6 +34,8 @@ class Chess:
 
     # render thread
     def render(self):
+        hand = Hand()
+        hand.eval()
         while True:
             Screen.scr.fill(black)
             self.handle_events()

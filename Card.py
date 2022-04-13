@@ -26,6 +26,8 @@ class Card:
         self.img = get_image(value, cls)
         if value in conv_value.keys():
             value = conv_value.get(value)[0].upper()
+        if value == 10:
+            value = "T"
         self.code = f"{value}{conv_type[cls][0]}"
         print(self.code)
         return
