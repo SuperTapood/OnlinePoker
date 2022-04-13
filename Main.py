@@ -1,3 +1,5 @@
+import os
+import sys
 import threading
 import pygame
 
@@ -14,14 +16,15 @@ class Chess:
         self.scr = Screen(800, 800)
         self.deck = Deck()
         self.index = 0
+        self.clock = pygame.time.Clock()
         return
 
     @staticmethod
     def handle_events():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                exit()
-        return
+                return False
+        return True
 
     def main_menu(self):
         return
@@ -31,26 +34,24 @@ class Chess:
 
     def join_match(self):
         return
-
-    # render thread
-    def render(self):
-        hand = Hand()
-        hand.eval()
-        while True:
-            Screen.scr.fill(black)
-            self.handle_events()
-
     pass
 
 
 if __name__ == "__main__":
-    pygame.init()
-    game = Chess()
-    # todo: do this after finishing the game dummy
-    # game.main_menu()
-    # create render and network threads
-    render_thread = threading.Thread(target=game.render)
-    render_thread.start()
-    while True:
-        pygame.display.update()
-        game.handle_events()
+    try:
+        pygame.init()
+        game = Chess()
+        # todo: do this after finishing the game dummy
+        # game.main_menu()
+        hands = [Hand(i) for i in range(2)]
+        while True:
+            game.clock.tick(60)
+            Screen.scr.fill(black)
+            for h in hands:
+                h.blit()
+            pygame.display.update()
+            if not game.handle_events():
+                pygame.quit()
+                sys.exit()
+    except pygame.error as _:
+        print(_)

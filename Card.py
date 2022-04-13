@@ -1,5 +1,3 @@
-# clubs, diamonds, hearts, spades
-# 0,     1,        2,      3
 import pygame
 
 from Engine import Screen
@@ -14,24 +12,50 @@ conv_value = {
 conv_type = ["clubs", "diamonds", "hearts", "spades"]
 
 
-def get_image(value, cls):
-    if value in conv_value.keys():
-        value = conv_value.get(value)
-    cls = conv_type[cls]
-    return pygame.image.load(f"Cards\\{value}_of_{cls}.png")
-
-
 class Card:
     def __init__(self, value, cls):
-        self.img = get_image(value, cls)
+        self.real_img = self.get_image(value, cls)
+        self.img = pygame.image.load(f"Cards\\back.png")
+        self.img = pygame.transform.scale(self.img, (self.real_img.get_width(), self.real_img.get_height()))
         if value in conv_value.keys():
             value = conv_value.get(value)[0].upper()
         if value == 10:
             value = "T"
         self.code = f"{value}{conv_type[cls][0]}"
-        print(self.code)
+        print(f"loaded {self.code}")
+        self.rect = [0, 0, 0, 0]
         return
 
+    @staticmethod
+    def get_image(value, cls):
+        if value in conv_value.keys():
+            value = conv_value.get(value)
+        cls = conv_type[cls]
+        img = pygame.image.load(f"Cards\\{value}_of_{cls}.png")
+        return pygame.transform.scale(img, (img.get_width() / 3.5, img.get_height() / 3.5))
+
     def blit(self):
-        Screen.scr.blit(self.img, (0, 0))
+        Screen.scr.blit(self.img, self.rect)
+        return
+
+    def set_index(self, card_index, hand_index):
+        self.img = self.real_img
+        if hand_index == 0:
+            self.rect[0] = 300 + card_index * 50
+            self.rect[1] = 750
+        elif hand_index == 1:
+            self.img = pygame.transform.rotate(self.img, 90)
+            self.rect[0] = 0
+            self.rect[1] = 300 + card_index * 30
+        elif hand_index == 2:
+            self.rect[0] = 100 + card_index * 130
+            self.rect[1] = 600
+        elif hand_index == 3:
+            self.rect[0] = 100 + card_index * 130
+            self.rect[1] = 600
+        rot = pygame.transform.rotate(self.img, 10 * (2 - card_index))
+        self.rect = rot.get_rect(center=self.img.get_rect(center=(self.rect[0], self.rect[1])).center)
+        self.img = rot
+        return self
+
     pass

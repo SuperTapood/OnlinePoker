@@ -19,7 +19,7 @@ class Deck:
         return Deck.pack
 
     @staticmethod
-    def deal():
-        return Deck.get_pack().pop(random.randint(0, len(Deck.pack) - 1))
+    def deal(card_index, hand_index):
+        return Deck.get_pack().pop(random.randint(0, len(Deck.pack) - 1)).set_index(card_index, hand_index)
 
     pass
