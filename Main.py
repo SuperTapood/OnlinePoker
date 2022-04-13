@@ -1,28 +1,50 @@
 import threading
-from INDIGO.colors import *
 import pygame
-from time import sleep
-from INDIGO import *
+
+from Board import Board
+from Engine import *
 
 
 class Poker:
+    scr = None
+
     def __init__(self):
-        self.scr = Screen(800, 800, BLACK)
-        self.card = load_file("Cards//ace_of_clubs.png", 50, 50)
+        self.scr = Screen(800, 800)
+        self.board = Board()
         return
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+
+    def main_menu(self):
+        title = Text("O n l i n e  C h e s s", 50, 50)
+        start = TextButton("create match", 100, 100, 25, resp=lambda: print("hello"))
+        while True:
+            title.blit()
+            start.blit()
+            pygame.display.update()
+            self.handle_events()
+        pass
 
     # render thread
     def render(self):
-        self.card.blit(self.scr)
+        self.handle_events()
+        self.board.blit()
+        pygame.display.flip()
+        pygame.display.update()
         return
 
     pass
 
 
 if __name__ == "__main__":
+    pygame.init()
     game = Poker()
+    game.main_menu()
     # create render and network threads
     render_thread = threading.Thread(target=game.render)
     render_thread.start()
     while True:
-        game.scr.update()
+        Screen.scr.blit(pygame.transform.flip(Screen.scr, False, True), (0, 0))
