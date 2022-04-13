@@ -1,5 +1,5 @@
 from Deck import Deck
-from Evaluator import Evaluator as Eval
+from Evaluator import Evaluator
 
 
 class Hand:
@@ -9,8 +9,5 @@ class Hand:
         return
 
     def eval(self):
-        rank1 = Eval.evaluate_cards(["9c", "4c", "4s", "9d", "4h", "Qc", "6c"])
-        rank2 = Eval.evaluate_cards(["9c", "4c", "4s", "9d", "4h", "2c", "9h"])
-        print(rank1)
-        print(rank2)
+        return Evaluator.evaluate_cards()
     pass
