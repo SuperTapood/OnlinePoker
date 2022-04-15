@@ -4,9 +4,8 @@ from .Colors import *
 
 
 class TextButton:
-    def __init__(self, txt, x, y, txt_size, txt_color=white, resp=lambda: None, button_width=0):
+    def __init__(self, txt, x, y, txt_size=35, txt_color=white, resp=lambda: None, button_width=0):
         """
-        Screen scr - the screen object
         str txt - the text to blitted on screen
         num x, y - the loc of the button
         int txt_size - the size of the text
