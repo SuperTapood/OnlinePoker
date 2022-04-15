@@ -1,3 +1,4 @@
+import random
 import sys
 import pygame
 
@@ -10,6 +11,12 @@ import threading
 
 class Chess:
     scr = None
+    quotes = [
+        "this is poggers lol",
+        "you wot mate",
+        "ig you are my little pugchamp",
+        "made with <3"
+    ]
 
     def __init__(self):
         """
@@ -25,9 +32,14 @@ class Chess:
         width = 800
         height = 70
         loading_text = Text("loading game assets...", 450, 250)
+        funny = Text(self.quotes[random.randint(0, len(self.quotes) - 1)], 0, y)
+        funny.rect.x -= funny.rect.width * 2
         while self.__card_counter < 52:
+            self.scr.scr.fill(black)
+            funny.rect.x = -funny.rect.width + 800 * (self.__card_counter / 52)
             loading_text.blit()
             pygame.draw.rect(self.scr.scr, dark_red, pygame.Rect(x, y, width * (self.__card_counter / 52), height))
+            funny.blit()
             pygame.display.update()
             self.handle_events()
         loading_thread.join()
