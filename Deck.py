@@ -15,9 +15,6 @@ class Deck:
         IDK what new does, but it works with a static class and that is all I need to know
         """
         Deck.pack = []
-        for i in range(1, 14):
-            for j in range(4):
-                Deck.pack.append(Card(i, j))
         return cls
 
     @staticmethod

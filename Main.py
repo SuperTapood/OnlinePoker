@@ -1,9 +1,11 @@
 import sys
 import pygame
 
+from Card import Card
 from Deck import Deck
 from Engine import *
 from Hand import Hand
+import threading
 
 
 class Chess:
@@ -14,9 +16,29 @@ class Chess:
         create a new instance of the game
         """
         self.scr = Screen(800, 800)
+        self.__card_counter = 0
         self.deck = Deck()
-        self.index = 0
+        loading_thread = threading.Thread(target=self.load_deck)
+        loading_thread.start()
+        x = 0
+        y = 350
+        width = 800
+        height = 70
+        loading_text = Text("loading game assets...", 450, 250)
+        while self.__card_counter < 52:
+            loading_text.blit()
+            pygame.draw.rect(self.scr.scr, dark_red, pygame.Rect(x, y, width * (self.__card_counter / 52), height))
+            pygame.display.update()
+            self.handle_events()
+        loading_thread.join()
         self.clock = pygame.time.Clock()
+        return
+
+    def load_deck(self):
+        for i in range(1, 14):
+            for j in range(4):
+                self.deck.pack.append(Card(i, j))
+                self.__card_counter += 1
         return
 
     @staticmethod

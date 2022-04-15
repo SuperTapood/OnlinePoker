@@ -27,7 +27,6 @@ class Card:
         if value == 10:
             value = "T"
         self.code = f"{value}{conv_type[cls][0]}"
-        print(f"loaded {self.code}")
         self.rect = [0, 0, 0, 0]
         return
 
