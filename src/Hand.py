@@ -8,7 +8,19 @@ class Hand:
         create a new hand
         :param index: the index of the created hand
         """
-        self.cards = [Deck.deal(_, index) for _ in range(2)]
+        self.codes = None
+        if index < 4:
+            self.cards = [Deck.deal(_, index) for _ in range(2)]
+        elif index == 4:
+            self.cards = [Deck.deal(_, index) for _ in range(3)]
+        elif index == 5:
+            self.cards = [Deck.deal(0, index)]
+        elif index == 6:
+            self.cards = [Deck.deal(0, index)]
+        return
+
+
+    def compute_codes(self):
         self.codes = list([c.code for c in self.cards])
         return
 
@@ -17,6 +29,8 @@ class Hand:
         evaluate this hand
         :return: an integer value representing how good this hand is. smaller is better.
         """
+        if self.codes is None:
+            raise RuntimeError("heh")
         return Evaluator.evaluate_cards(self.codes)
 
     def blit(self):

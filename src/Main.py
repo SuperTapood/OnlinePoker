@@ -7,6 +7,8 @@ from Deck import Deck
 from Engine import *
 from Hand import Hand
 import threading
+import socket
+from select import select
 
 
 class Poker:
@@ -30,17 +32,21 @@ class Poker:
         """
         create a new instance of the game
         """
+        self.width = 1000
+        self.height = 1000
         self.clock = pygame.time.Clock()
-        self.scr = Screen(800, 800)
+        self.scr = Screen(self.width, self.height)
         self.__card_counter = 0
         self.deck = Deck()
+        self.socket = socket.socket()
+        self.logic = threading.Thread(target=self.logic_thread)
+        self.connected = 0
         loading_thread = threading.Thread(target=self.load_deck)
         loading_thread.start()
-        y = 350
-        width = 800
-        height = 70
-        loading_text = Text("loading game assets...", 450, 250)
-        funny = Text(self.quotes[random.randint(0, len(self.quotes) - 1)], 0, y)
+        y = 400
+        height = 150
+        loading_text = Text("loading game assets...", self.width - 350, 250)
+        funny = Text(self.quotes[random.randint(0, len(self.quotes) - 1)], 0, y, font_size=50)
         funny.rect.x -= funny.rect.width * 2
         percent = Text("0.69% done", 0, 250)
         while self.__card_counter < 52:
@@ -48,9 +54,11 @@ class Poker:
             self.scr.scr.fill(black)
             percent.set_text(f"{int((self.__card_counter / 52) * 100)}% done")
             percent.blit()
-            funny.rect.x = 800 - 800 * (self.__card_counter / 52)
+            funny.rect.x = self.width - self.width * (self.__card_counter / 52)
             loading_text.blit()
-            pygame.draw.rect(self.scr.scr, dark_red, pygame.Rect(800 - width * (self.__card_counter / 52), y, 800, height))
+            pygame.draw.rect(self.scr.scr, dark_red,
+                             pygame.Rect(self.width - self.width * (self.__card_counter / 52), y,
+                                         self.width + 200, height))
             funny.blit()
             pygame.display.update()
             if not self.handle_events():
@@ -58,14 +66,23 @@ class Poker:
                 sys.exit()
         percent.set_text("100% done")
         self.b = False
-        self.cont = TextButton("START", 250, 600, txt_size=60, resp=self.contin)
+        self.cont = TextButton("START", 500, 600, txt_size=60, resp=self.contin)
         while not self.b:
+            self.scr.scr.fill(black)
+            percent.blit()
+            pygame.draw.rect(self.scr.scr, dark_red,
+                             pygame.Rect(self.width - self.width * (self.__card_counter / 52), y,
+                                         self.width + 200, height))
             self.cont.blit()
+            funny.blit()
             pygame.display.update()
             if not self.handle_events():
                 pygame.quit()
                 sys.exit()
         loading_thread.join()
+        self.hands = [Hand(i) for i in range(7)]
+        self.b = False
+        self.is_connected = False
         return
 
     def contin(self):
@@ -91,13 +108,71 @@ class Poker:
         return True
 
     def main_menu(self):
-        return
+        create = TextButton("create match", 50, 50, resp=self.create_match)
+        join = TextButton("join match", 250, 50, resp=self.join_match)
+
+        while not self.b:
+            Screen.scr.fill(black)
+            create.blit()
+            join.blit()
+            if not self.handle_events():
+                pygame.quit()
+                sys.exit()
+            pygame.display.update()
 
     def create_match(self):
-        return
+        self.b = True
+
+        # socket.gethostbyname(socket.gethostname())
+
+        addr = Text("your ip is " + "127.0.0.1", 50, 50)
+
+        self.socket.bind(("127.0.0.1", 42069))
+        self.socket.listen(3)
+
+        self.logic.start()
+        while True:
+            Screen.scr.fill(black)
+            addr.blit()
+            if not self.handle_events():
+                pygame.quit()
+                sys.exit()
+            pygame.display.update()
 
     def join_match(self):
+        if not self.is_connected:
+            self.socket.connect(("127.0.0.1", 42069))
+            self.is_connected = True
         return
+
+    def process(self, data):
+        pass
+
+    def logic_thread(self):
+        readables = [self.socket]
+        while True:
+            read, _, _ = select(readables, [], [])
+
+            for sock in read:
+                if sock is self.socket:
+                    if self.connected < 3:
+                        sockt, addr = sock.accept()
+                        readables.append(sockt)
+                        self.connected += 1
+                        print("connected to", addr)
+                    else:
+                        readables.remove(sock)
+
+                else:
+                    d = sock.recv(2048)
+
+                    if d:
+                        self.process(d)
+
+                    else:
+                        readables.remove(sock)
+                        sock.close()
+
     pass
 
 
@@ -106,15 +181,17 @@ if __name__ == "__main__":
         pygame.init()
         game = Poker()
         # todo: do this after finishing the game dummy
-        # game.main_menu()
-        hands = [Hand(i) for i in range(4)]
-        # todo: fix the eval thing
+        game.main_menu()
+        # todo: fix the eval thing and add the community cards
         # for h in hands:
         #     print(h.eval())
+        # todo: fix the image rotation thing to copy rather than override
+        # todo: crash a client that cannot connect
+        # todo: add a client logic thread and server logic thread
         while True:
             game.clock.tick(60)
             Screen.scr.fill(black)
-            for h in hands:
+            for h in game.hands:
                 h.blit()
             pygame.display.update()
             if not game.handle_events():

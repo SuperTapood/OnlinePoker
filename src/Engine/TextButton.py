@@ -32,7 +32,8 @@ class TextButton:
         x, y, txt_size, txt_color, resp = self.att_tuple
         rect = Label(new_txt, x, y, txt_size, txt_color).rect
         x, y, w, h = rect
-        self.button = Button(x, y, w, h,)
+        self.button = Button(x, y, w, h, )
         self.text = Label(new_txt, x, y, txt_size, txt_color)
         return
+
     pass

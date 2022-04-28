@@ -62,22 +62,33 @@ class Card:
         """
         # self.img = self.real_img
         if hand_index == 0:
-            self.rect[0] = 350 + card_index * 50
-            self.rect[1] = 750
+            self.rect[0] = 450 + card_index * 50
+            self.rect[1] = 950
             self.img = self.real_img
         elif hand_index == 1:
             self.img = pygame.transform.rotate(self.img, 90)
             self.rect[0] = 0
-            self.rect[1] = 350 + card_index * 30
+            self.rect[1] = 450 + card_index * 30
         elif hand_index == 2:
             self.img = pygame.transform.rotate(self.img, -14 * (1 - (card_index * 2)))
-            self.rect[0] = 350 + card_index * 50
+            self.rect[0] = 450 + card_index * 50
             self.rect[1] = 0
         elif hand_index == 3:
             self.img = pygame.transform.rotate(self.img, -14 * (1 - (card_index * 2)))
             self.img = pygame.transform.rotate(self.img, -90)
-            self.rect[0] = 800
-            self.rect[1] = 350 + card_index * 30
+            self.rect[0] = 1000
+            self.rect[1] = 450 + card_index * 30
+        elif hand_index == 4:
+            # self.img = self.real_img
+            self.img = pygame.transform.rotate(self.img, -7 * (1 - (card_index * 2)))
+            self.rect[0] = 280 + card_index * 200
+            self.rect[1] = 369
+        elif hand_index in [5, 6]:
+            hand_index -= 5
+            # self.img = self.real_img
+            self.img = pygame.transform.rotate(self.img, -7)
+            self.rect[0] = 380 + hand_index * 200
+            self.rect[1] = 569
         rot = pygame.transform.rotate(self.img, 7 * (1 - (card_index * 2)))
         self.rect = rot.get_rect(center=self.img.get_rect(center=(self.rect[0], self.rect[1])).center)
         self.img = rot
