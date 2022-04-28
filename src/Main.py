@@ -36,7 +36,6 @@ class Poker:
         self.deck = Deck()
         loading_thread = threading.Thread(target=self.load_deck)
         loading_thread.start()
-        x = 0
         y = 350
         width = 800
         height = 70
@@ -108,7 +107,7 @@ if __name__ == "__main__":
         game = Poker()
         # todo: do this after finishing the game dummy
         # game.main_menu()
-        hands = [Hand(i) for i in range(2)]
+        hands = [Hand(i) for i in range(4)]
         while True:
             game.clock.tick(60)
             Screen.scr.fill(black)

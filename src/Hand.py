@@ -8,7 +8,7 @@ class Hand:
         create a new hand
         :param index: the index of the created hand
         """
-        self.cards = [Deck.deal(_, index) for _ in range(5)]
+        self.cards = [Deck.deal(_, index) for _ in range(2)]
         self.codes = list([c.code for c in self.cards])
         return
 

@@ -20,7 +20,7 @@ class Card:
         :param cls: the class of the card (club, diamond, heart, spade)
         """
         self.real_img = self.get_image(value, cls)
-        self.img = pygame.image.load(f"Cards\\back.png")
+        self.img = pygame.image.load(f"..\\assets\\Cards\\back.png")
         self.img = pygame.transform.scale(self.img, (self.real_img.get_width(), self.real_img.get_height()))
         if value in conv_value.keys():
             value = conv_value.get(value)[0].upper()
@@ -41,7 +41,7 @@ class Card:
         if value in conv_value.keys():
             value = conv_value.get(value)
         cls = conv_type[cls]
-        img = pygame.image.load(f"Cards\\{value}_of_{cls}.png")
+        img = pygame.image.load(f"..\\assets\\Cards\\{value}_of_{cls}.png")
         return pygame.transform.scale(img, (img.get_width() / 3.5, img.get_height() / 3.5))
 
     def blit(self):
