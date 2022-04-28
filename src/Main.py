@@ -108,6 +108,9 @@ if __name__ == "__main__":
         # todo: do this after finishing the game dummy
         # game.main_menu()
         hands = [Hand(i) for i in range(4)]
+        # todo: fix the eval thing
+        # for h in hands:
+        #     print(h.eval())
         while True:
             game.clock.tick(60)
             Screen.scr.fill(black)

@@ -60,21 +60,25 @@ class Card:
         :param hand_index: the index of the hand this card is in
         :return this instance because I feel it adds personality to the function
         """
-        self.img = self.real_img
+        # self.img = self.real_img
         if hand_index == 0:
-            self.rect[0] = 300 + card_index * 50
+            self.rect[0] = 350 + card_index * 50
             self.rect[1] = 750
+            self.img = self.real_img
         elif hand_index == 1:
             self.img = pygame.transform.rotate(self.img, 90)
             self.rect[0] = 0
-            self.rect[1] = 300 + card_index * 30
+            self.rect[1] = 350 + card_index * 30
         elif hand_index == 2:
-            self.rect[0] = 100 + card_index * 130
-            self.rect[1] = 600
+            self.img = pygame.transform.rotate(self.img, -14 * (1 - (card_index * 2)))
+            self.rect[0] = 350 + card_index * 50
+            self.rect[1] = 0
         elif hand_index == 3:
-            self.rect[0] = 100 + card_index * 130
-            self.rect[1] = 600
-        rot = pygame.transform.rotate(self.img, 10 * (2 - card_index))
+            self.img = pygame.transform.rotate(self.img, -14 * (1 - (card_index * 2)))
+            self.img = pygame.transform.rotate(self.img, -90)
+            self.rect[0] = 800
+            self.rect[1] = 350 + card_index * 30
+        rot = pygame.transform.rotate(self.img, 7 * (1 - (card_index * 2)))
         self.rect = rot.get_rect(center=self.img.get_rect(center=(self.rect[0], self.rect[1])).center)
         self.img = rot
         return self

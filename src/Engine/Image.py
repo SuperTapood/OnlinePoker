@@ -12,5 +12,4 @@ class Image:
     def blit(self):
         Screen.get().blit(self.img, (self.x, self.y))
         return
-
     pass
