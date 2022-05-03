@@ -123,11 +123,11 @@ class Poker:
     def create_match(self):
         self.b = True
 
-        # socket.gethostbyname(socket.gethostname())
+        ip = socket.gethostbyname(socket.gethostname())
 
-        addr = Text("your ip is " + "127.0.0.1", 50, 50)
+        addr = Text("your ip is " + ip, 50, 50)
 
-        self.socket.bind(("127.0.0.1", 42069))
+        self.socket.bind((ip, 42069))
         self.socket.listen(3)
 
         self.logic.start()
