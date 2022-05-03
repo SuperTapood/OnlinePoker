@@ -143,6 +143,12 @@ class Poker:
         if not self.is_connected:
             self.socket.connect(("127.0.0.1", 42069))
             self.is_connected = True
+            d = self.socket.recv(4096)
+            if d == b"connection refused":
+                # game is full
+                self.socket.close()
+                pygame.quit()
+                sys.exit()
         return
 
     def process(self, data):
@@ -155,20 +161,21 @@ class Poker:
 
             for sock in read:
                 if sock is self.socket:
+                    sockt, addr = sock.accept()
                     if self.connected < 3:
-                        sockt, addr = sock.accept()
                         readables.append(sockt)
                         self.connected += 1
-                        print("connected to", addr)
+                        sockt.sendall(b"connection accepted")
+                        # print("connected to", addr)
                     else:
+                        sockt.sendall(b"connection refused")
                         readables.remove(sock)
-
+                        sock.close()
+                        sockt.close()
                 else:
                     d = sock.recv(2048)
-
                     if d:
                         self.process(d)
-
                     else:
                         readables.remove(sock)
                         sock.close()
