@@ -11,6 +11,34 @@ import socket
 from select import select
 
 
+# macro for receiving messages to the client
+def recv_msg(sock):
+    m = sock.recv(4096)
+    # let the client know we got their message
+    sock.sendall(b"200 OK")
+    # return a decoded string
+    return m.decode("utf-8")
+
+
+# a macro for sending a message to the client
+def send_msg(sock, d):
+    # if d is not castable to byte, cast it to string
+    if type(d) not in [bytes, str]:
+        d = str(d)
+    # if d is not a bytes object, we kinda need it to be
+    if type(d) != bytes:
+        d = bytes(d, "utf-8")
+
+    # send the bytes object
+    sock.sendall(d)
+    ans = sock.recv(4096)
+
+    # assert that the message was acknowledged
+    # you have no idea how much headache
+    # this saved me during development
+    assert ans == b"200 OK"
+
+
 class Poker:
     scr = None
     quotes = [
@@ -39,7 +67,7 @@ class Poker:
         self.__card_counter = 0
         self.deck = Deck()
         self.socket = socket.socket()
-        self.logic = threading.Thread(target=self.logic_thread)
+        self.server_logic = threading.Thread(target=self.server_logic_thread)
         self.connected = 0
         loading_thread = threading.Thread(target=self.load_deck)
         loading_thread.start()
@@ -80,8 +108,8 @@ class Poker:
                 pygame.quit()
                 sys.exit()
         loading_thread.join()
-        self.hands = [Hand(i) for i in range(7)]
         self.b = False
+        self.hands = []
         self.is_connected = False
         return
 
@@ -121,61 +149,71 @@ class Poker:
             pygame.display.update()
 
     def create_match(self):
+        self.hands = [Hand(i) for i in range(7)]
         self.b = True
 
-        ip = socket.gethostbyname(socket.gethostname())
+        # ip = socket.gethostbyname(socket.gethostname())
+        ip = "127.0.0.1"
 
         addr = Text("your ip is " + ip, 50, 50)
 
         self.socket.bind((ip, 42069))
         self.socket.listen(3)
 
-        self.logic.start()
-        while True:
-            Screen.scr.fill(black)
-            addr.blit()
-            if not self.handle_events():
-                pygame.quit()
-                sys.exit()
-            pygame.display.update()
+        self.server_logic.start()
 
     def join_match(self):
+        self.b = True
         if not self.is_connected:
             self.socket.connect(("127.0.0.1", 42069))
             self.is_connected = True
-            d = self.socket.recv(4096)
+            d = recv_msg(self.socket)
             if d == b"connection refused":
                 # game is full
                 self.socket.close()
                 pygame.quit()
                 sys.exit()
+            index = int(recv_msg(self.socket))
+            for _ in range(7):
+                d = recv_msg(self.socket)
+                self.hands.append(Hand(_, d))
+            for _ in range(index):
+                first = self.hands[0]
+                for i in range(3):
+                    self.hands[i] = self.hands[i + 1]
+                self.hands[3] = first
         return
 
-    def process(self, data):
+    def server_process(self, data):
         pass
 
-    def logic_thread(self):
+    def server_logic_thread(self):
         readables = [self.socket]
         while True:
+            print("d;lkajwdklaj")
             read, _, _ = select(readables, [], [])
-
+            print("selected")
             for sock in read:
                 if sock is self.socket:
                     sockt, addr = sock.accept()
                     if self.connected < 3:
                         readables.append(sockt)
                         self.connected += 1
-                        sockt.sendall(b"connection accepted")
-                        # print("connected to", addr)
+                        send_msg(sockt, b"connection accepted")
+                        send_msg(sockt, self.connected)
+                        for hand in self.hands:
+                            print(str(hand))
+                            send_msg(sockt, str(hand).encode())
+                        print("connected to", addr)
                     else:
-                        sockt.sendall(b"connection refused")
+                        send_msg(sockt, b"connection refused")
                         readables.remove(sock)
                         sock.close()
                         sockt.close()
                 else:
                     d = sock.recv(2048)
                     if d:
-                        self.process(d)
+                        self.server_process(d)
                     else:
                         readables.remove(sock)
                         sock.close()

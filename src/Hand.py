@@ -3,12 +3,17 @@ from Evaluator import Evaluator
 
 
 class Hand:
-    def __init__(self, index):
+    def __init__(self, index, names=""):
         """
         create a new hand
         :param index: the index of the created hand
         """
-        self.codes = None
+        self.codes = []
+        if names != "":
+            s = names.split("|")
+            self.cards = [Deck.get(s[i], i, index) for i in range(len(s))]
+            self.compute_codes()
+            return
         if index < 4:
             self.cards = [Deck.deal(_, index) for _ in range(2)]
         elif index == 4:
@@ -17,8 +22,8 @@ class Hand:
             self.cards = [Deck.deal(0, index)]
         elif index == 6:
             self.cards = [Deck.deal(0, index)]
+        self.compute_codes()
         return
-
 
     def compute_codes(self):
         self.codes = list([c.code for c in self.cards])
@@ -51,4 +56,8 @@ class Hand:
         for i in range(5):
             self.cards[i].set_index(i, index)
         return
+
+    def __str__(self):
+        return "|".join(self.codes)
+
     pass

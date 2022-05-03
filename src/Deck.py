@@ -34,4 +34,11 @@ class Deck:
         """
         return Deck.get_pack().pop(random.randint(0, len(Deck.pack) - 1)).set_index(card_index, hand_index)
 
+    @staticmethod
+    def get(name, card_index, hand_index):
+        for i in range(len(Deck.get_pack())):
+            if Deck.get_pack()[i].code == name:
+                return Deck.get_pack().pop(i).set_index(card_index, hand_index)
+        raise IndexError("dror is gr8")
+
     pass
