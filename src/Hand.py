@@ -53,7 +53,7 @@ class Hand:
 
         :param index: the desired index
         """
-        for i in range(5):
+        for i in range(len(self.cards)):
             self.cards[i].set_index(i, index)
         return
 

@@ -168,7 +168,7 @@ class Poker:
             self.socket.connect(("127.0.0.1", 42069))
             self.is_connected = True
             d = recv_msg(self.socket)
-            if d == b"connection refused":
+            if d == "connection refused":
                 # game is full
                 self.socket.close()
                 pygame.quit()
@@ -178,10 +178,13 @@ class Poker:
                 d = recv_msg(self.socket)
                 self.hands.append(Hand(_, d))
             for _ in range(index):
-                first = self.hands[0]
-                for i in range(3):
-                    self.hands[i] = self.hands[i + 1]
-                self.hands[3] = first
+                temp = self.hands[0]
+                self.hands[0] = self.hands[1]
+                self.hands[1] = self.hands[2]
+                self.hands[2] = self.hands[3]
+                self.hands[3] = temp
+            for i, hand in zip(range(len(self.hands)), self.hands):
+                hand.set_index(i)
         return
 
     def server_process(self, data):
@@ -190,9 +193,7 @@ class Poker:
     def server_logic_thread(self):
         readables = [self.socket]
         while True:
-            print("d;lkajwdklaj")
             read, _, _ = select(readables, [], [])
-            print("selected")
             for sock in read:
                 if sock is self.socket:
                     sockt, addr = sock.accept()
