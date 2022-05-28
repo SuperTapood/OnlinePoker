@@ -1,3 +1,5 @@
+from typing import List
+
 from Deck import Deck
 from Evaluator import Evaluator
 
@@ -22,11 +24,15 @@ class Hand:
             self.cards = [Deck.deal(0, index)]
         elif index == 6:
             self.cards = [Deck.deal(0, index)]
-        self.compute_codes()
         return
 
-    def compute_codes(self):
+    def compute_codes(self, hands):
         self.codes = list([c.code for c in self.cards])
+        self.codes.append(hands[4].cards[0].code)
+        self.codes.append(hands[4].cards[1].code)
+        self.codes.append(hands[4].cards[2].code)
+        self.codes.append(hands[5].cards[0].code)
+        self.codes.append(hands[6].cards[0].code)
         return
 
     def eval(self):
@@ -36,6 +42,8 @@ class Hand:
         """
         if self.codes is None:
             raise RuntimeError("heh")
+        print("Adwaoipdaplwid")
+        print(self.codes)
         return Evaluator.evaluate_cards(self.codes)
 
     def blit(self):

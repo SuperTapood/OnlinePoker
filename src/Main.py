@@ -60,7 +60,7 @@ class Poker:
         """
         create a new instance of the game
         """
-        self.width = 1000
+        self.width = 1700
         self.height = 1000
         self.clock = pygame.time.Clock()
         self.scr = Screen(self.width, self.height)
@@ -69,6 +69,10 @@ class Poker:
         self.socket = socket.socket()
         self.server_logic = threading.Thread(target=self.server_logic_thread)
         self.connected = 0
+        self.cash_values = []
+        self.cashes = []
+        self.index = 0
+        self.loop_thread = threading.Thread(target=self.game_loop)
         loading_thread = threading.Thread(target=self.load_deck)
         loading_thread.start()
         y = 400
@@ -94,7 +98,7 @@ class Poker:
                 sys.exit()
         percent.set_text("100% done")
         self.b = False
-        self.cont = TextButton("START", 500, 600, txt_size=60, resp=self.contin)
+        self.cont = TextButton("START", 500, 600, txt_size=60, resp=self.set_b_true)
         while not self.b:
             self.scr.scr.fill(black)
             percent.blit()
@@ -111,9 +115,11 @@ class Poker:
         self.b = False
         self.hands = []
         self.is_connected = False
+        self.pot = 0
+        self.pot_text = Text(f"Pot contains {self.pot}", 0, 200, font_size=50)
         return
 
-    def contin(self):
+    def set_b_true(self):
         self.b = True
         return
 
@@ -150,6 +156,8 @@ class Poker:
 
     def create_match(self):
         self.hands = [Hand(i) for i in range(7)]
+        for h in self.hands:
+            h.compute_codes(self.hands)
         self.b = True
 
         # ip = socket.gethostbyname(socket.gethostname())
@@ -159,6 +167,12 @@ class Poker:
 
         self.socket.bind((ip, 42069))
         self.socket.listen(3)
+        cash_value = 10000
+
+        # settings loop goes here
+
+        self.cash_values = [cash_value] * 4
+        self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 0, i * 50, font_size=50) for i in range(4)]
 
         self.server_logic.start()
 
@@ -173,11 +187,11 @@ class Poker:
                 self.socket.close()
                 pygame.quit()
                 sys.exit()
-            index = int(recv_msg(self.socket))
+            self.index = int(recv_msg(self.socket))
             for _ in range(7):
                 d = recv_msg(self.socket)
                 self.hands.append(Hand(_, d))
-            for _ in range(index):
+            for _ in range(self.index):
                 temp = self.hands[0]
                 self.hands[0] = self.hands[1]
                 self.hands[1] = self.hands[2]
@@ -185,6 +199,11 @@ class Poker:
                 self.hands[3] = temp
             for i, hand in zip(range(len(self.hands)), self.hands):
                 hand.set_index(i)
+            for h in self.hands:
+                h.compute_codes(self.hands)
+            cash_value = int(recv_msg(self.socket))
+            self.cash_values = [cash_value] * 4
+            self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 0, i * 50, font_size=50) for i in range(4)]
         return
 
     def server_process(self, data):
@@ -205,6 +224,7 @@ class Poker:
                         for hand in self.hands:
                             print(str(hand))
                             send_msg(sockt, str(hand).encode())
+                        send_msg(sockt, f"{self.cash_values[0]}")
                         print("connected to", addr)
                     else:
                         send_msg(sockt, b"connection refused")
@@ -219,6 +239,17 @@ class Poker:
                         readables.remove(sock)
                         sock.close()
 
+    def game_loop(self):
+        pass
+
+    def blit(self):
+        for h in self.hands:
+            h.blit()
+        for c in self.cashes:
+            c.blit()
+        self.pot_text.blit()
+        return
+
     pass
 
 
@@ -226,19 +257,14 @@ if __name__ == "__main__":
     try:
         pygame.init()
         game = Poker()
-        # todo: do this after finishing the game dummy
         game.main_menu()
-        # todo: fix the eval thing and add the community cards
-        # for h in hands:
-        #     print(h.eval())
         # todo: fix the image rotation thing to copy rather than override
         # todo: crash a client that cannot connect
         # todo: add a client logic thread and server logic thread
         while True:
             game.clock.tick(60)
             Screen.scr.fill(black)
-            for h in game.hands:
-                h.blit()
+            game.blit()
             pygame.display.update()
             if not game.handle_events():
                 pygame.quit()
