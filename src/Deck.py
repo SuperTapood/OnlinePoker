@@ -9,12 +9,14 @@ class Deck:
     the pack of all cards in existence
     """
     pack: List[Card]
+    backup: List[Card]
 
     def __new__(cls):
         """
         IDK what new does, but it works with a static class and that is all I need to know
         """
         Deck.pack = []
+        Deck.backup = []
         return cls
 
     @staticmethod
@@ -23,6 +25,10 @@ class Deck:
         :return: the pack ig
         """
         return Deck.pack
+
+    @staticmethod
+    def get_backup():
+        return Deck.backup
 
     @staticmethod
     def deal(card_index, hand_index):
@@ -37,8 +43,8 @@ class Deck:
     @staticmethod
     def get(name, card_index, hand_index):
         for i in range(len(Deck.get_pack())):
-            if Deck.get_pack()[i].code == name:
-                return Deck.get_pack().pop(i).set_index(card_index, hand_index)
+            if Deck.get_backup()[i].code == name:
+                return Deck.get_backup()[i].set_index(card_index, hand_index)
         raise IndexError("dror is gr8")
 
     pass

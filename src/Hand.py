@@ -14,7 +14,6 @@ class Hand:
         if names != "":
             s = names.split("|")
             self.cards = [Deck.get(s[i], i, index) for i in range(len(s))]
-            self.compute_codes()
             return
         if index < 4:
             self.cards = [Deck.deal(_, index) for _ in range(2)]
@@ -24,15 +23,18 @@ class Hand:
             self.cards = [Deck.deal(0, index)]
         elif index == 6:
             self.cards = [Deck.deal(0, index)]
+        self.hands = []
         return
 
     def compute_codes(self, hands):
+        """
+        compute the codes of this hand. this is done after all hands are created because the community hands are required.
+
+        :param hands:
+        :return:
+        """
+        self.hands = hands
         self.codes = list([c.code for c in self.cards])
-        self.codes.append(hands[4].cards[0].code)
-        self.codes.append(hands[4].cards[1].code)
-        self.codes.append(hands[4].cards[2].code)
-        self.codes.append(hands[5].cards[0].code)
-        self.codes.append(hands[6].cards[0].code)
         return
 
     def eval(self):
@@ -42,9 +44,13 @@ class Hand:
         """
         if self.codes is None:
             raise RuntimeError("heh")
-        print("Adwaoipdaplwid")
-        print(self.codes)
-        return Evaluator.evaluate_cards(self.codes)
+        codes = self.codes
+        codes.append(self.hands[4].cards[0].code)
+        codes.append(self.hands[4].cards[1].code)
+        codes.append(self.hands[4].cards[2].code)
+        codes.append(self.hands[5].cards[0].code)
+        codes.append(self.hands[6].cards[0].code)
+        return Evaluator.evaluate_cards(codes)
 
     def blit(self):
         """

@@ -7,13 +7,12 @@ edit: yes i know it said chess, but we are back to poker ;)
 
 - sort the code into functions
 - fix resolution change artifacts
-- close socket upon program termination
-- add loop for the hand shifting in join_match
 - add party full screen
 - add text input for the join match screen
 - add ip label for create match
 - add sign of players connecting
 - add custom game settings
-- fix eval function
 - add a separating line between cards and money
 - move money and pot to their positions
+- fix the image rotation thing to copy rather than override
+- add a client logic thread and server logic thread
