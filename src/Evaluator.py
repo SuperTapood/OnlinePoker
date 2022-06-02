@@ -1,13 +1,16 @@
 """
-compressed version of Henry Lee's Poker hand evaluation at https://github.com/HenryRLee/PokerHandEvaluator
+Compressed version of Henry Lee's Poker hand evaluation at https://github.com/HenryRLee/PokerHandEvaluator
 
-The library down from a full package to a class and some utility data (almost 7000 lines of it) by removing uneeded
-code
+The library was compressed down from a full package to a class and some utility data (almost 7000 lines of it 😉) by
+removing unneeded code. Most of the removals were made possible due to the unnatural sanitary of the data used.
 
-seeing as it was only going to be called under specific conditions, it made no sense to keep it as versatile as it was
+Seeing as it was only going to be called under specific conditions, it made no sense to keep it as versatile (and
+thus as expensive) as it was.
 """
 
 from typing import List
+
+# utils for the evaluator. i don't have the slightest idea how this works
 from EvalUtil import *
 
 
@@ -16,10 +19,11 @@ class Evaluator:
     def to_id(other: str) -> int:
         """
         Convert a string code of a card to an integer id
+
         Args:
-            other (str): The description of the card. e.g. "2c", "Ah". "T" represents 10
+            other: The description of the card. e.g. "2c", "Ah". "T" represents 10
         Returns:
-            int: the card's ID
+            the card's ID
         """
         rank, suit = tuple(other)
         return rank_map[rank] * 4 + suit_map[suit]

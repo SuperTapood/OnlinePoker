@@ -16,9 +16,8 @@ import calendar
 
 class Poker:
     scr = None
+    # funny haha lol
     quotes = [
-        "this is poggers lol",
-        "you wot mate",
         "*sigh* i guess you are my little pugchamp",
         "made with <3",
         "where are my pants?",
@@ -36,14 +35,21 @@ class Poker:
         "Water is just hydrogen soup",
         "Got any grapes?",
         "Thunderwear",
-        "Paper jokes are just tearable",
+        "Paper puns are just tearable",
         "Need an ark? I noah guy",
         "I don't get why circles exist. They're pointless.",
         "I'm afraid for the calendar. Its days are numbered.",
         "What has ears but can't listen?",
         "If the USA is so great than why did they make a USB",
         "Why are ducks always in a fowl mood",
-        f"it's {calendar.day_name[date.today().weekday()]} my dudes"
+        f"it is {calendar.day_name[date.today().weekday()]} my dudes",
+        "approved by official code chads",
+        "If it compiles, it's good; if it boots up, it's perfect.",
+        "it just works",
+        "the best thing about asynchronization is how it works 80% out of 5% of the time",
+        "the numbers mason! what do they mean?!?!",
+        "funny quote go brrrrr",
+        "built by part time idiot sandwiches"
     ]
 
     def __init__(self):
@@ -74,9 +80,13 @@ class Poker:
         return
 
     def quit(self):
+        """
+        terminate this instance of the game
+        """
         pygame.quit()
         self.server_logic_run = False
         self.loop_thread_run = False
+        return
 
     def start_screen(self):
         """
@@ -87,7 +97,7 @@ class Poker:
         y = 400
         height = 150
         loading_text = Text("loading game assets...", self.width - 350, 250)
-        funny = Text(self.quotes[random.randint(0, len(self.quotes) - 1)], 0, y, font_size=50)
+        funny = Text(self.quotes.pop(random.randint(0, len(self.quotes) - 1)), 0, y, font_size=50)
         funny.rect.x -= funny.rect.width * 2
         percent = Text("0.69% done", 0, 250)
         while self.__card_counter < 52:
@@ -124,13 +134,20 @@ class Poker:
         return
 
     def set_b_true(self):
+        """
+        set b to true
+        """
         self.b = True
         return
 
     def load_deck(self):
+        """
+        thread function for the loading of the cards
+        """
         for i in range(1, 14):
             for j in range(4):
                 card = Card(i, j)
+                # append the card to both lists, this makes loading so much faster
                 self.deck.pack.append(card)
                 self.deck.backup.append(card)
                 self.__card_counter += 1
@@ -148,6 +165,9 @@ class Poker:
         return True
 
     def main_menu(self):
+        """
+        the main menu loop function
+        """
         create = TextButton("create match", 50, 50, resp=self.create_match)
         join = TextButton("join match", 250, 50, resp=self.join_match)
 
@@ -158,8 +178,12 @@ class Poker:
             if not self.handle_events():
                 self.quit()
             pygame.display.update()
+        return
 
     def create_match(self):
+        """
+        create a new match by opening the socket for incoming requests
+        """
         self.hands = [Hand(i) for i in range(7)]
         for h in self.hands:
             h.compute_codes(self.hands)
@@ -182,6 +206,9 @@ class Poker:
         self.server_logic.start()
 
     def join_match(self):
+        """
+        join an existing match
+        """
         self.b = True
         if not self.is_connected:
             self.socket.connect(("127.0.0.1", 42069))
@@ -212,7 +239,25 @@ class Poker:
     def server_process(self, data):
         pass
 
+    def first_connect(self, sockt):
+        """
+        connect the given socket to our socket by quickly bringing it up to speed
+        :param sockt: the given socket
+        """
+        self.connected += 1
+        send_msg(sockt, b"connection accepted")
+        send_msg(sockt, self.connected)
+        for hand in self.hands:
+            # print(str(hand))
+            send_msg(sockt, str(hand).encode())
+        send_msg(sockt, f"{self.cash_values[0]}")
+        return
+
     def server_logic_thread(self):
+        """
+        function to handle all of the game managing and stuff. this loop coexists with the main loop to prevent the
+        sockets from blocking the render loop
+        """
         readables = [self.socket]
         while self.loop_thread_run:
             read, _, _ = select(readables, [], [])
@@ -222,13 +267,7 @@ class Poker:
                         sockt, addr = sock.accept()
                         if self.connected < 3:
                             readables.append(sockt)
-                            self.connected += 1
-                            send_msg(sockt, b"connection accepted")
-                            send_msg(sockt, self.connected)
-                            for hand in self.hands:
-                                # print(str(hand))
-                                send_msg(sockt, str(hand).encode())
-                            send_msg(sockt, f"{self.cash_values[0]}")
+                            self.first_connect(sockt)
                             print("connected to", addr)
                         else:
                             send_msg(sockt, b"connection refused")
@@ -247,6 +286,9 @@ class Poker:
         pass
 
     def blit(self):
+        """
+        draw all elements of the game
+        """
         for h in self.hands:
             h.blit()
         for c in self.cashes:

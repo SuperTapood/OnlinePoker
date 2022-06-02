@@ -17,6 +17,8 @@ class Hand:
             return
         if index < 4:
             self.cards = [Deck.deal(_, index) for _ in range(2)]
+
+        # community cards
         elif index == 4:
             self.cards = [Deck.deal(_, index) for _ in range(3)]
         elif index == 5:
@@ -45,6 +47,7 @@ class Hand:
         if self.codes is None:
             raise RuntimeError("heh")
         codes = self.codes
+        # these are codes fetched from the community cards
         codes.append(self.hands[4].cards[0].code)
         codes.append(self.hands[4].cards[1].code)
         codes.append(self.hands[4].cards[2].code)
@@ -72,6 +75,9 @@ class Hand:
         return
 
     def __str__(self):
+        """
+        YES
+        """
         return "|".join(self.codes)
 
     pass

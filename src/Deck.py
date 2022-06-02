@@ -42,6 +42,13 @@ class Deck:
 
     @staticmethod
     def get(name, card_index, hand_index):
+        """
+        get a card by name
+        :param name: the name of the card (value|type)
+        :param card_index: the index of the card
+        :param hand_index: the index of the hand
+        :return: the wanted card
+        """
         for i in range(len(Deck.get_pack())):
             if Deck.get_backup()[i].code == name:
                 return Deck.get_backup()[i].set_index(card_index, hand_index)

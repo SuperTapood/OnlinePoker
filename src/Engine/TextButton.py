@@ -23,12 +23,19 @@ class TextButton:
         return
 
     def blit(self):
+        """
+        draw the text button
+        """
         self.text.blit()
         if self.button.check_click():
             self.resp()
         return
 
     def update_text(self, new_txt):
+        """
+        update the text
+        :param new_txt: the new text to set to
+        """
         x, y, txt_size, txt_color, resp = self.att_tuple
         rect = Label(new_txt, x, y, txt_size, txt_color).rect
         x, y, w, h = rect
