@@ -1,3 +1,4 @@
+import copy
 import random
 import sys
 import pygame
@@ -12,6 +13,7 @@ from select import select
 from Network import send_msg, recv_msg
 from datetime import date
 import calendar
+from time import time
 
 
 class Poker:
@@ -27,30 +29,31 @@ class Poker:
         "now with 5% more Bob Ross",
         "I hardly know 'er!",
         "more cheese = less cheese",
-        "how you BEAN?",
+        "How you BEAN?",
         "You're breathtaking!",
         "you egg?",
-        "the embodiment of page 2 of google search results",
+        "The embodiment of page 2 of google search results",
         "Love is like frying food shirtless, you never know when it's going to hurt",
         "Water is just hydrogen soup",
-        "Got any grapes?",
-        "Thunderwear",
+        "Hey, got any grapes?",
+        "What does a cloud wear under his pants? Thunderwear.",
         "Paper puns are just tearable",
-        "Need an ark? I noah guy",
+        "Need an ark? I Noah guy",
         "I don't get why circles exist. They're pointless.",
         "I'm afraid for the calendar. Its days are numbered.",
-        "What has ears but can't listen?",
-        "If the USA is so great than why did they make a USB",
-        "Why are ducks always in a fowl mood",
+        "What has ears but can't listen? Corn.",
+        "If the USA is so great why did they make a USB?",
+        "Why are ducks always in a fowl mood?",
         f"it is {calendar.day_name[date.today().weekday()]} my dudes",
-        "approved by official code chads",
+        "Approved by official code chads",
         "If it compiles, it's good; if it boots up, it's perfect.",
-        "it just works",
-        "the best thing about asynchronization is how it works 80% out of 5% of the time",
-        "the numbers mason! what do they mean?!?!",
+        "It Just Works.",
+        "I love it when asynchronization works 80% out of 5% of the time",
+        "The numbers Mason! What do they mean?!?!",
         "funny quote go brrrrr",
-        "built by part time idiot sandwiches"
+        "Built by two part time idiot sandwiches"
     ]
+    t_quotes = copy.copy(quotes)
 
     def __init__(self):
         """
@@ -79,6 +82,15 @@ class Poker:
         self.loop_thread_run = True
         return
 
+    def get_quote(self):
+        """
+        get a random quote
+        :return: a random quote
+        """
+        if len(self.t_quotes) == 0:
+            self.t_quotes = copy.copy(self.quotes)
+        return self.t_quotes.pop(random.randint(0, len(self.t_quotes) - 1))
+
     def quit(self):
         """
         terminate this instance of the game
@@ -97,7 +109,7 @@ class Poker:
         y = 400
         height = 150
         loading_text = Text("loading game assets...", self.width - 350, 250)
-        funny = Text(self.quotes.pop(random.randint(0, len(self.quotes) - 1)), 0, y, font_size=50)
+        funny = Text(self.get_quote(), 0, y + 35, font_size=50)
         funny.rect.x -= funny.rect.width * 2
         percent = Text("0.69% done", 0, 250)
         while self.__card_counter < 52:
@@ -116,7 +128,7 @@ class Poker:
                 self.quit()
         percent.set_text("100% done")
         self.b = False
-        self.cont = TextButton("START", 500, 600, txt_size=60, resp=self.set_b_true)
+        self.cont = TextButton("START", 750, 650, txt_size=60, resp=self.set_b_true)
         while not self.b:
             self.scr.scr.fill(black)
             percent.blit()
@@ -168,16 +180,39 @@ class Poker:
         """
         the main menu loop function
         """
-        create = TextButton("create match", 50, 50, resp=self.create_match)
-        join = TextButton("join match", 250, 50, resp=self.join_match)
+        last = time()
+        delay = 0.3
+        title = Text("Poker", 0, 0, font_size=150)
+        title.rect.center = (1700 / 2, 60)
+        quote = TextButton(self.get_quote(), 50, 750, txt_size=30)
+        quote.text.rect.center = (1700 / 2, 160)
+        quote.button.rect = quote.text.rect
+        create = TextButton("Create a New Match", 0, 0, resp=self.create_match, txt_size=70)
+        create.text.rect.center = (1700 / 2, 330)
+        create.button.rect = create.text.rect
+        join = TextButton("Join an Existing Match", 0, 0, resp=self.join_match, txt_size=70)
+        join.text.rect.center = (1700 / 2, 500)
+        join.button.rect = join.text.rect
+        quit_button = TextButton("Quit", 0, 0, resp=self.quit, txt_size=70)
+        quit_button.text.rect.center = (1700 / 2, 870)
+        quit_button.button.rect = quit_button.text.rect
 
         while not self.b:
             Screen.scr.fill(black)
+            title.blit()
             create.blit()
+            quote.blit()
             join.blit()
+            quit_button.blit()
+            if quote.button.check_click() and time() - last > delay:
+                last = time()
+                quote.text.set_text(self.get_quote())
+                quote.text.rect.center = (1700 / 2, 160)
+                quote.button.rect = quote.text.rect
             if not self.handle_events():
                 self.quit()
             pygame.display.update()
+
         return
 
     def create_match(self):
