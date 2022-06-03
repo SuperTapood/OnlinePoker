@@ -1,6 +1,7 @@
 import copy
 import random
 import pygame
+from _socket import SHUT_RDWR
 
 from Card import Card
 from Deck import Deck
@@ -80,6 +81,7 @@ class Poker:
         self.pot_text = Text(f"Pot contains {self.pot}", 1000, 800, font_size=50)
         self.server_logic_run = True
         self.loop_thread_run = True
+        self.readables = []
         return
 
     def get_quote(self):
@@ -233,7 +235,7 @@ class Poker:
         addr = Text("your ip is " + ip, 50, 50)
 
         self.socket.bind((ip, 42069))
-        self.socket.listen(3)
+        self.socket.listen(500)
         cash_value = 10000
 
         # settings loop goes here
@@ -242,6 +244,23 @@ class Poker:
         self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in range(4)]
 
         self.server_logic.start()
+        return
+
+    def game_full(self):
+        """
+        called when the requested game is full
+        """
+        text = Text("The game you wanted to join is full", 50, 50)
+        self.b = True
+
+        while self.b:
+            Screen.scr.fill(black)
+            text.blit()
+            if not self.handle_events():
+                self.quit()
+            pygame.display.update()
+
+        return
 
     def join_match(self):
         """
@@ -254,7 +273,8 @@ class Poker:
             d = recv_msg(self.socket)
             if d == "connection refused":
                 # game is full
-                self.quit()
+                self.socket.close()
+                self.game_full()
             self.index = int(recv_msg(self.socket))
             for _ in range(7):
                 d = recv_msg(self.socket)
@@ -265,13 +285,14 @@ class Poker:
                 self.hands[1] = self.hands[2]
                 self.hands[2] = self.hands[3]
                 self.hands[3] = temp
-            # for i, hand in zip(range(len(self.hands)), self.hands):
-            #     hand.set_index(i)
+            for i, hand in zip(range(len(self.hands)), self.hands):
+                hand.set_index(i)
             for h in self.hands:
                 h.compute_codes(self.hands)
             cash_value = int(recv_msg(self.socket))
             self.cash_values = [cash_value] * 4
-            self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in range(4)]
+            self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in
+                           range(4)]
         return
 
     def server_process(self, data):
@@ -296,28 +317,27 @@ class Poker:
         function to handle all of the game managing and stuff. this loop coexists with the main loop to prevent the
         sockets from blocking the render loop
         """
-        readables = [self.socket]
+        self.readables = [self.socket]
         while self.loop_thread_run:
-            read, _, _ = select(readables, [], [])
+            read, _, _ = select(self.readables, [], [])
             for sock in read:
                 if self.loop_thread_run:
                     if sock is self.socket:
                         sockt, addr = sock.accept()
-                        if self.connected < 3:
-                            readables.append(sockt)
+                        if self.connected < 1:
+                            self.readables.append(sockt)
                             self.first_connect(sockt)
                             print("connected to", addr)
                         else:
                             send_msg(sockt, b"connection refused")
-                            readables.remove(sock)
-                            sock.close()
                             sockt.close()
+                            print("kicked", addr)
                     else:
                         d = sock.recv(2048)
                         if d:
                             self.server_process(d)
                         else:
-                            readables.remove(sock)
+                            self.readables.remove(sock)
                             sock.close()
 
     def game_loop(self):
