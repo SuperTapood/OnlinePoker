@@ -1,6 +1,5 @@
 import copy
 import random
-import sys
 import pygame
 
 from Card import Card
@@ -53,6 +52,7 @@ class Poker:
         "funny quote go brrrrr",
         "Built by two part time idiot sandwiches"
     ]
+
     t_quotes = copy.copy(quotes)
 
     def __init__(self):
@@ -77,7 +77,7 @@ class Poker:
         self.hands = []
         self.is_connected = False
         self.pot = 0
-        self.pot_text = Text(f"Pot contains {self.pot}", 0, 200, font_size=50)
+        self.pot_text = Text(f"Pot contains {self.pot}", 1000, 800, font_size=50)
         self.server_logic_run = True
         self.loop_thread_run = True
         return
@@ -128,7 +128,7 @@ class Poker:
                 self.quit()
         percent.set_text("100% done")
         self.b = False
-        self.cont = TextButton("START", 750, 650, txt_size=60, resp=self.set_b_true)
+        self.cont = TextButton("START", 750, 650, txt_size=60, resp=self.set_b_to_true)
         while not self.b:
             self.scr.scr.fill(black)
             percent.blit()
@@ -145,12 +145,15 @@ class Poker:
         self.b = False
         return
 
-    def set_b_true(self):
+    # set b to true
+    def set_b_to_true(self):
         """
         set b to true
         """
-        self.b = True
-        return
+        # set b to true
+        self.b = True  # set b to true
+        # b is now true
+        return  # b has been set to true
 
     def load_deck(self):
         """
@@ -236,7 +239,7 @@ class Poker:
         # settings loop goes here
 
         self.cash_values = [cash_value] * 4
-        self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 0, i * 50, font_size=50) for i in range(4)]
+        self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in range(4)]
 
         self.server_logic.start()
 
@@ -268,7 +271,7 @@ class Poker:
                 h.compute_codes(self.hands)
             cash_value = int(recv_msg(self.socket))
             self.cash_values = [cash_value] * 4
-            self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 0, i * 50, font_size=50) for i in range(4)]
+            self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in range(4)]
         return
 
     def server_process(self, data):
@@ -326,6 +329,8 @@ class Poker:
         """
         for h in self.hands:
             h.blit()
+        self.scr.line(white, (1000, 0), (1000, 1000), 5)
+        self.scr.rect(black, 1000, 0, 1000, 1000)
         for c in self.cashes:
             c.blit()
         self.pot_text.blit()

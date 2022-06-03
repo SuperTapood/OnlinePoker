@@ -29,11 +29,27 @@ class Screen:
     def line(color, start, end, width):
         """
         draw a line on screen with the given specs
+
         :param color: the color of the line
         :param start: the start position of the line
         :param end: the end position of the line
         :param width: the width of the line
         """
         pygame.draw.line(Screen.get(), color, start, end, width)
+        return
+
+    @staticmethod
+    def rect(color, x, y, w, h, width=0):
+        """
+        draw a line on the screen with the given specs
+
+        :param color: the color of the rect
+        :param x: the x position
+        :param y: the y position
+        :param w: the width of the rect
+        :param h: the height of the rect
+        :param width: the width of the rect's borders
+        """
+        pygame.draw.rect(Screen.get(), color, (x, y, w, h), width)
         return
     pass

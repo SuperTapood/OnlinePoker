@@ -60,7 +60,7 @@ class Card:
         :param hand_index: the index of the hand this card is in
         :return this instance because I feel it adds personality to the function
         """
-        self.img = self.real_img
+        # self.img = self.real_img
         if hand_index == 0:
             self.rect[0] = 450 + card_index * 50
             self.rect[1] = 950
