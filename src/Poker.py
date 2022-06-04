@@ -54,6 +54,8 @@ class Poker:
         "Built by two part time idiot sandwiches"
     ]
 
+    player_colors = [dark_red, dark_blue, dark_green, grey]
+
     t_quotes = copy.copy(quotes)
 
     def __init__(self):
@@ -242,6 +244,7 @@ class Poker:
 
         self.cash_values = [cash_value] * 4
         self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in range(4)]
+        self.cashes[0].change_color(self.player_colors[0], f"My Money: {self.cash_values[0]}")
 
         self.server_logic.start()
         return
@@ -250,16 +253,30 @@ class Poker:
         """
         called when the requested game is full
         """
-        text = Text("The game you wanted to join is full", 50, 50)
+        text = Text("The game you tried to join is full", 0, 0, font_size=60)
+        text.rect.center = (1700 / 2, 60)
+        create = TextButton("Create A New Match", 0, 0, resp=self.create_match, txt_size=70)
+        create.text.rect.center = (1700 / 2, 330)
+        create.button.rect = create.text.rect
+        join = TextButton("Join Another Match", 0, 0, resp=self.join_match, txt_size=70)
+        join.text.rect.center = (1700 / 2, 500)
+        join.button.rect = join.text.rect
+        quit_button = TextButton("Quit", 0, 0, resp=self.quit, txt_size=70)
+        quit_button.text.rect.center = (1700 / 2, 870)
+        quit_button.button.rect = quit_button.text.rect
         self.b = True
 
         while self.b:
             Screen.scr.fill(black)
             text.blit()
+            create.blit()
+            join.blit()
+            quit_button.blit()
             if not self.handle_events():
                 self.quit()
             pygame.display.update()
 
+        self.main_menu()
         return
 
     def join_match(self):
@@ -272,8 +289,9 @@ class Poker:
             self.is_connected = True
             d = recv_msg(self.socket)
             if d == "connection refused":
+                self.connected = False
                 # game is full
-                self.socket.close()
+                # self.socket.close()
                 self.game_full()
             self.index = int(recv_msg(self.socket))
             for _ in range(7):
@@ -293,6 +311,8 @@ class Poker:
             self.cash_values = [cash_value] * 4
             self.cashes = [Text(f"Player {i + 1}: {self.cash_values[i]}", 1000, i * 150, font_size=50) for i in
                            range(4)]
+            self.cashes[self.index].change_color(self.player_colors[self.index],
+                                                 f"My Money: {self.cash_values[self.index]}")
         return
 
     def server_process(self, data):
@@ -318,13 +338,14 @@ class Poker:
         sockets from blocking the render loop
         """
         self.readables = [self.socket]
+        self.loop_thread_run = True
         while self.loop_thread_run:
             read, _, _ = select(self.readables, [], [])
             for sock in read:
                 if self.loop_thread_run:
                     if sock is self.socket:
                         sockt, addr = sock.accept()
-                        if self.connected < 1:
+                        if self.connected < 3:
                             self.readables.append(sockt)
                             self.first_connect(sockt)
                             print("connected to", addr)
@@ -339,6 +360,25 @@ class Poker:
                         else:
                             self.readables.remove(sock)
                             sock.close()
+
+    def client_logic_thread(self):
+        """
+                function to handle all of the game managing and stuff. this loop coexists with the main loop to prevent the
+                sockets from blocking the render loop
+                """
+        self.readables = [self.socket]
+        self.loop_thread_run = True
+        while self.loop_thread_run:
+            read, _, _ = select(self.readables, [], [])
+            print(read)
+            for sock in read:
+                if self.loop_thread_run:
+                    d = sock.recv(2048)
+                    if d:
+                        self.client_process(d)
+                    else:
+                        self.readables.remove(sock)
+                        sock.close()
 
     def game_loop(self):
         pass
@@ -356,4 +396,23 @@ class Poker:
         self.pot_text.blit()
         return
 
+    def exit_handler(self):
+        for sock in self.readables:
+            try:
+                send_msg(sock, "host dead")
+                sock.close()
+            except Exception as e:
+                print(e)
+        try:
+            self.socket.close()
+        except Exception as e:
+            print(e)
+        return
+
     pass
+
+    def client_process(self, d):
+        if d == "host dead":
+            self.loop_thread_run = False
+            self.b = False
+        return

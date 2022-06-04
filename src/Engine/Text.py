@@ -43,6 +43,7 @@ class Text:
         self.text = self.font.render(text, False, self.text_color)
         self.rect = self.text.get_rect()
         self.rect.topleft = (self.x, self.y)
+        self.txt = text
         return
 
     def get_resized(self, new_size):
@@ -50,5 +51,12 @@ class Text:
         out.font = pygame.font.Font("segoeui.ttf", new_size)
         out.text = out.font.render(self.txt, False, self.text_color)
         return out
+
+    def change_color(self, new_color, new_text=None):
+        self.text_color = new_color
+        if new_text is None:
+            new_text = self.txt
+        self.set_text(new_text)
+        return
 
     pass
