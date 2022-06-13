@@ -1,10 +1,6 @@
 # OnlinePoker
 
-Yes i know it says poker, it is chess now
-
-edit: yes i know it said chess, but we are back to poker ;)
-
-
+- figure out where the clients get stuck when the host disconnects
 - add "connection terminated" screen when the host is closed
 - add text input for the join match screen
 - add ip label for create match

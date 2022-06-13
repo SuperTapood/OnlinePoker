@@ -54,7 +54,7 @@ class Poker:
         "Built by two part time idiot sandwiches"
     ]
 
-    player_colors = [dark_red, dark_blue, dark_green, grey]
+    player_colors = [dark_red, dark_blue, dark_green, red]
 
     t_quotes = copy.copy(quotes)
 
@@ -72,6 +72,7 @@ class Poker:
         self.deck = Deck()
         self.socket = socket.socket()
         self.server_logic = threading.Thread(target=self.server_logic_thread)
+        self.client_logic = threading.Thread(target=self.client_logic_thread)
         self.connected = 0
         self.cash_values = []
         self.cashes = []
@@ -313,6 +314,7 @@ class Poker:
                            range(4)]
             self.cashes[self.index].change_color(self.player_colors[self.index],
                                                  f"My Money: {self.cash_values[self.index]}")
+            self.client_logic.start()
         return
 
     def server_process(self, data):
@@ -354,7 +356,7 @@ class Poker:
                             sockt.close()
                             print("kicked", addr)
                     else:
-                        d = sock.recv(2048)
+                        d = recv_msg(sock)
                         if d:
                             self.server_process(d)
                         else:
@@ -373,7 +375,7 @@ class Poker:
             print(read)
             for sock in read:
                 if self.loop_thread_run:
-                    d = sock.recv(2048)
+                    d = recv_msg(sock)
                     if d:
                         self.client_process(d)
                     else:
@@ -397,16 +399,22 @@ class Poker:
         return
 
     def exit_handler(self):
-        for sock in self.readables:
-            try:
-                send_msg(sock, "host dead")
-                sock.close()
-            except Exception as e:
-                print(e)
+        print("exited")
+        if self.index == 0:
+            print(self.readables)
+            for sock in self.readables:
+                print(sock)
+                try:
+                    send_msg(sock, "host dead")
+                    sock.close()
+                except Exception as e:
+                    print(e)
         try:
             self.socket.close()
         except Exception as e:
             print(e)
+        print("out")
+        self.quit()
         return
 
     pass
@@ -415,4 +423,8 @@ class Poker:
         if d == "host dead":
             self.loop_thread_run = False
             self.b = False
+            self.quit()
+            self.socket.close()
+            exit()
+            print("outted")
         return
